@@ -215,7 +215,7 @@ KStatReader::data_named(kstat_t *ksp)
 {
 	Handle<Object> data = Object::New();
 	kstat_named_t *nm = KSTAT_NAMED_PTR(ksp);
-	int i;
+	uint i;
 
 	assert(ksp->ks_type == KSTAT_TYPE_NAMED);
 
@@ -244,7 +244,11 @@ KStatReader::data_named(kstat_t *ksp)
 			break;
 
 		case KSTAT_DATA_STRING:
-			val = String::New(KSTAT_NAMED_STR_PTR(nm));
+			if (KSTAT_NAMED_STR_PTR(nm) == NULL) {
+				val = String::New("null");
+			} else {
+				val = String::New(KSTAT_NAMED_STR_PTR(nm));
+			}
 			break;
 
 		default:
@@ -348,7 +352,7 @@ KStatReader::Read(const Arguments& args)
 	KStatReader *k = ObjectWrap::Unwrap<KStatReader>(args.Holder());
 	Handle<Array> rval;
 	HandleScope scope;
-	int i, j;
+	uint i, j;
 
 	if (k->ksr_ctl == NULL)
 		return (k->error("kstat reader has already been closed\n"));
